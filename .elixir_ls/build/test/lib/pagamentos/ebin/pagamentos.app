@@ -14,6 +14,7 @@
                         'Elixir.PagamentosWeb.ErrorHelpers',
                         'Elixir.PagamentosWeb.ErrorView',
                         'Elixir.PagamentosWeb.Gettext',
+                        'Elixir.PagamentosWeb.PixController',
                         'Elixir.PagamentosWeb.Router',
                         'Elixir.PagamentosWeb.Router.Helpers',
                         'Elixir.PagamentosWeb.Telemetry',

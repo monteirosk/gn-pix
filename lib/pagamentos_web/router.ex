@@ -7,6 +7,7 @@ defmodule PagamentosWeb.Router do
 
   scope "/api", PagamentosWeb do
     pipe_through :api
+    get "/", PixController, :index
   end
 
   # Enables LiveDashboard only for development
