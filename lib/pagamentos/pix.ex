@@ -1,5 +1,5 @@
 defmodule Pagamentos.Pix do
-  def get_token() do
+  def gera_novo_pagamento(dados) do
     client_id = "Client_Id_ee542ca94cf7bb3add7ef77d11cdf64cad0f512d"
     client_secret = "Client_Secret_4ba9291843d1fa2e4d1bd87a9a4f384a30a19927"
     auth = Base.encode64("#{client_id}:#{client_secret}")
@@ -22,7 +22,7 @@ defmodule Pagamentos.Pix do
       |> Map.get("access_token")
 
     cob =
-      criar_cobranca(token)
+      criar_cobranca(token, dados)
       |> Poison.decode!()
 
     locId =
@@ -30,16 +30,23 @@ defmodule Pagamentos.Pix do
       |> Map.get("loc")
       |> Map.get("id")
 
-    qrcode = get_qrcode(token, locId)
-    Poison.encode!(%{token: token, cobranca: cob, qrcode: qrcode})
+    qrcode =
+      get_qrcode(token, locId)
+      |> Poison.decode!()
+
+    %{cobranca: cob, qrcode: qrcode}
     # IO.inspect(qrcode)
   end
 
-  def criar_cobranca(token) do
+  def criar_cobranca(token, dados) do
     url = "https://api-pix.gerencianet.com.br/v2/cob/"
 
     request =
-      "{\"calendario\":{\"expiracao\":3600},\"devedor\":{\"cpf\":\"74339524204\",\"nome\":\"William Monteiro\"},\"valor\":{\"original\":\"1.00\"},\"chave\":\"ec85aa7d-3752-4f93-9bcf-2e14acdee26c\",\"solicitacaoPagador\":\"Pagamento do pedido 456\"}"
+      "{\"calendario\":{\"expiracao\":3600},\"devedor\":{\"cpf\":\"#{Map.get(dados, "cpf")}\",\"nome\":\"#{
+        Map.get(dados, "nome")
+      }\"},\"valor\":{\"original\":\"#{Map.get(dados, "valor")}\"},\"chave\":\"ec85aa7d-3752-4f93-9bcf-2e14acdee26c\",\"solicitacaoPagador\":\"#{
+        Map.get(dados, "descricao")
+      }\"}"
 
     headers = [{"Authorization", "Bearer #{token}"}, {"Content-Type", "application/json"}]
     options = [ssl: [certfile: "certificado.pem"]]
